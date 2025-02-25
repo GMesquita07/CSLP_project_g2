@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     // Exibir imagem original
     cv::imshow("Imagem Original", image);
 
-    // Separar os canais BGR
+    // Separar os canais RGB
     cv::Mat channels[3];
     cv::split(image, channels);
 
@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
     std::vector<cv::Mat> green = {zeros, channels[1], zeros};
     std::vector<cv::Mat> red = {zeros, zeros, channels[2]};
 
-    // Mesclando para criar imagens coloridas dos canais
+    // Merge para criar imagens coloridas dos canais
     cv::merge(blue, blueChannel);
     cv::merge(green, greenChannel);
     cv::merge(red, redChannel);
@@ -49,11 +49,11 @@ int main(int argc, char** argv) {
     cv::imshow("Canal Vermelho", redChannel);
     cv::imshow("Imagem em Escala de Cinza", grayImage);
 
-    // Aguarde uma tecla para sair
     cv::waitKey(0);
     
     return 0;
 }
+
 
 
 //compilar:     g++ DisplayImage.cpp -o DisplayImage `pkg-config --cflags --libs opencv4`
