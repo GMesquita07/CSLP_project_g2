@@ -1,0 +1,3 @@
+/home/bruno-charao/Universidade/3 ano/Segundo Semestre/CSLP/CSLP_project_g2/D1/CMakeFiles/DisplayImage.dir
+/home/bruno-charao/Universidade/3 ano/Segundo Semestre/CSLP/CSLP_project_g2/D1/CMakeFiles/edit_cache.dir
+/home/bruno-charao/Universidade/3 ano/Segundo Semestre/CSLP/CSLP_project_g2/D1/CMakeFiles/rebuild_cache.dir
