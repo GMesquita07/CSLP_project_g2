@@ -35,3 +35,9 @@ D1/Makefile
 D1/cmake_install.cmake
 D1/CMakeCache.txt
 D1/CMakeFiles
+
+# Ignorar executáveis
+golomb_test
+
+# Ignorar arquivos gerados
+encoded.bin
