@@ -1,0 +1,5 @@
+cd ~/CSLP/CSLP_project_g2/D4\ new/t1
+mkdir -p build && cd build
+cmake ..
+make
+./delivery4
