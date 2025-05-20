@@ -1,0 +1,8 @@
+cd build
+rm -rf *
+cmake ..
+make
+
+---
+
+./delivery4
