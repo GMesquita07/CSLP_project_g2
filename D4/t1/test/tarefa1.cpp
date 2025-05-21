@@ -4,7 +4,7 @@
 #include <opencv2/opencv.hpp>
 
 int main() {
-    std::string inputImage = "/home/mesquita/CSLP/CSLP_project_g2/D4 new/t1/data/lebron.webp";;
+    std::string inputImage = "../data/lebron.webp";;
     std::string encodedFile = "encoded_lossless.bin";
 
     cv::Mat img = cv::imread(inputImage, cv::IMREAD_COLOR);

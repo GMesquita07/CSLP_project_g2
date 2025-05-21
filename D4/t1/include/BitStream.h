@@ -1,36 +1,42 @@
 #pragma once
-
 #include <fstream>
 #include <string>
 
 class BitStream {
 public:
-    // Construtor: filename e modo (true = write, false = read)
     BitStream(const std::string& filename, bool writeMode);
-
     ~BitStream();
 
-    // Escrita e leitura de bits
+    /* 1 bit */
     void writeBit(bool bit);
     bool readBit();
 
-    void writeBits(uint64_t value, int nbits);
-    uint64_t readBits(int nbits);
+    /* 1 byte */
+    void writeByte(unsigned char byte);
+    unsigned char readByte();
 
-    // Escrever e ler strings como sequência de bits
-    void writeString(const std::string& str);
-    std::string readString(size_t length);
+    /* 32-bit little-endian */
+    void writeInt(int value);
+    int  readInt();
 
+    /* n bits ( 0 < n ≤ 32 ) */
+    void writeBits(unsigned int value, int nBits);
+    unsigned int readBits(int nBits);
+
+    /* descarrega buffer parcial (apenas quando em escrita) */
     void flush();
 
 private:
+    /* ficheiros */
     std::ofstream ofs;
     std::ifstream ifs;
+    bool writeMode{false};
 
-    bool writeMode;
+    /* escrita */
+    unsigned char buffer{0};
+    int  bitCount{0};
 
-    unsigned char buffer;
-    int bitPos; // posição no buffer (0-7)
-
-    void flushBuffer();
+    /* leitura */
+    unsigned char readBuffer{0};
+    int  bitsLeft{0};
 };

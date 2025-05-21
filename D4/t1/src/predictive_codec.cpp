@@ -1,15 +1,12 @@
-// predictive_codec.cpp
 #include "predictive_codec.h"
 #include "predictor.h"
 #include "Golomb.h"
-#include <opencv2/opencv.hpp>
-#include <fstream>
 
 void encodeImageLossless(const cv::Mat& img, const std::string& filename, int m) {
     BitStream bs(filename, true);
     GolombEncoder encoder(bs, m);
 
-    for (int c = 0; c < 3; ++c) { // For each color channel
+    for (int c = 0; c < 3; ++c) {
         for (int i = 0; i < img.rows; ++i) {
             for (int j = 0; j < img.cols; ++j) {
                 int current = img.at<cv::Vec3b>(i, j)[c];

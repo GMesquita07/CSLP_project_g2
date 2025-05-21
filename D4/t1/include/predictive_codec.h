@@ -1,4 +1,3 @@
-// predictive_codec.h
 #pragma once
 
 #include <string>

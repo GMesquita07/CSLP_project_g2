@@ -1,83 +1,76 @@
 #include "BitStream.h"
-#include <stdexcept>
 
+/* ───────── ctor / dtor ───────── */
 BitStream::BitStream(const std::string& filename, bool writeMode)
-    : writeMode(writeMode), buffer(0), bitPos(0)
+    : writeMode(writeMode), buffer(0), bitCount(0),
+      readBuffer(0), bitsLeft(0)
 {
-    if (writeMode) {
+    if (writeMode)
         ofs.open(filename, std::ios::binary);
-        if (!ofs.is_open()) throw std::runtime_error("Failed to open file for writing");
-    } else {
+    else
         ifs.open(filename, std::ios::binary);
-        if (!ifs.is_open()) throw std::runtime_error("Failed to open file for reading");
-    }
 }
 
 BitStream::~BitStream() {
-    if (writeMode) flushBuffer();
-    if (ofs.is_open()) ofs.close();
-    if (ifs.is_open()) ifs.close();
+    if (writeMode) { flush(); ofs.close(); }
+    else            ifs.close();
 }
 
+/* ───────── bit a bit ───────── */
 void BitStream::writeBit(bool bit) {
-    buffer <<= 1;
-    if (bit) buffer |= 1;
-    bitPos++;
-    if (bitPos == 8) flushBuffer();
+    buffer = (buffer << 1) | bit;
+    if (++bitCount == 8) { ofs.put(buffer); buffer = 0; bitCount = 0; }
 }
 
 bool BitStream::readBit() {
-    if (bitPos == 0) {
-        if (!ifs.get(reinterpret_cast<char&>(buffer))) throw std::runtime_error("End of file");
-        bitPos = 8;
+    if (bitsLeft == 0) {                 // carrega novo byte
+        readBuffer = ifs.get();
+        bitsLeft   = 8;
     }
-    bool bit = (buffer & 0x80) != 0;
-    buffer <<= 1;
-    bitPos--;
+    bool bit = (readBuffer & (1 << (bitsLeft - 1))) != 0;
+    --bitsLeft;
     return bit;
 }
 
-void BitStream::writeBits(uint64_t value, int nbits) {
-    if (nbits <= 0 || nbits > 64) throw std::invalid_argument("Invalid nbits");
-    for (int i = nbits -1; i >=0; --i) {
-        writeBit((value >> i) & 1);
-    }
+/* ───────── byte ───────── */
+void BitStream::writeByte(unsigned char byte) {
+    if (bitCount == 0) ofs.put(byte);           // alinhado
+    else for (int i = 7; i >= 0; --i) writeBit((byte >> i) & 1);
 }
 
-uint64_t BitStream::readBits(int nbits) {
-    if (nbits <= 0 || nbits > 64) throw std::invalid_argument("Invalid nbits");
-    uint64_t value = 0;
-    for (int i = 0; i < nbits; ++i) {
-        value <<= 1;
-        value |= readBit() ? 1 : 0;
-    }
+unsigned char BitStream::readByte() {
+    unsigned char byte = 0;
+    for (int i = 7; i >= 0; --i) byte |= (readBit() << i);
+    return byte;
+}
+
+/* ───────── 32 bits ───────── */
+void BitStream::writeInt(int value) {
+    for (int i = 0; i < 4; ++i) writeByte( (value >> (8*i)) & 0xFF );
+}
+
+int BitStream::readInt() {
+    int value = 0;
+    for (int i = 0; i < 4; ++i) value |= (readByte() << (8*i));
     return value;
 }
 
-void BitStream::writeString(const std::string& str) {
-    for (char c : str) {
-        writeBits(static_cast<uint8_t>(c), 8);
-    }
+/* ───────── n bits genérico ───────── */
+void BitStream::writeBits(unsigned int value, int nBits) {
+    for (int i = nBits-1; i >= 0; --i) writeBit( (value >> i) & 1 );
 }
 
-std::string BitStream::readString(size_t length) {
-    std::string str;
-    for (size_t i = 0; i < length; ++i) {
-        char c = static_cast<char>(readBits(8));
-        str.push_back(c);
-    }
-    return str;
+unsigned int BitStream::readBits(int nBits) {
+    unsigned int v = 0;
+    for (int i = 0; i < nBits; ++i) v = (v << 1) | readBit();
+    return v;
 }
 
-void BitStream::flushBuffer() {
-    if (bitPos == 0) return;
-    buffer <<= (8 - bitPos);
-    ofs.put(buffer);
-    buffer = 0;
-    bitPos = 0;
-}
-
+/* ───────── flush ───────── */
 void BitStream::flush() {
-    flushBuffer();
-    ofs.flush();
+    if (bitCount > 0) {                  // completa byte com zeros
+        buffer <<= (8 - bitCount);
+        ofs.put(buffer);
+        buffer = 0; bitCount = 0;
+    }
 }
