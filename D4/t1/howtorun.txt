@@ -1,5 +1,7 @@
-cd ~/CSLP/CSLP_project_g2/D4\ new/t1
-mkdir -p build && cd build
+cd build                        Mudar para a pasta build -> Caso tenha conteúdo usar "rm -rf *" !!! DENTRO DA PASTA BUILD !!!
 cmake ..
 make
-./delivery4
+
+---
+
+./delivery1

@@ -1,0 +1,20 @@
+cd build                        Mudar para a pasta build -> Caso tenha conteúdo usar "rm -rf *" !!! DENTRO DA PASTA BUILD !!!
+cmake ..
+make
+
+---
+
+./delivery2                    O processo é um pouco demorado, esperar pelo seguinte output no terminal:
+
+ |
+ |
+ |
+ V
+
+
+~/CSLP/CSLP_project_g2/D4/t2/build$ ./delivery2 
+
+A codificar vídeo...
+Vídeo codificado com sucesso.
+A descodificar vídeo...
+Vídeo descodificado com sucesso.

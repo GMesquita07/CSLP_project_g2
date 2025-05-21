@@ -3,7 +3,7 @@
 
 int main() {
     // Define o caminho do vídeo de entrada - muda para o teu vídeo real
-    std::string inputVideo = "/home/mesquita/CSLP/CSLP_project_g2/D4 new/t2/data/testvideo.mp4";
+    std::string inputVideo = "../data/testvideo.mp4";
 
     // Ficheiro onde vai ficar o vídeo codificado
     std::string encodedFile = "encoded_video.bin";

@@ -10,7 +10,7 @@ include_directories(
     ${OpenCV_INCLUDE_DIRS}
 )
 
-add_executable(delivery4
+add_executable(delivery1
     src/predictive_codec.cpp
     src/predictor.cpp
     src/BitStream.cpp
@@ -19,4 +19,4 @@ add_executable(delivery4
     test/tarefa1.cpp
 )
 
-target_link_libraries(delivery4 ${OpenCV_LIBS})
+target_link_libraries(delivery1 ${OpenCV_LIBS})
