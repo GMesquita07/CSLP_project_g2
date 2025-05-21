@@ -4,12 +4,12 @@
 #include <iostream>
 
 int main() {
-    std::string inputImage = "/home/mesquita/CSLP/CSLP_project_g2/D4/t1/data/lebron.webp";
+    std::string inputImage = "../data/lebron.webp";
     std::string encodedFile = "encoded_lossy.bin";
     std::string encodedFileDCT = "encoded_dct.bin";
 
     int m = 8;
-    int quantLevel = 10;   // nível de quantização para testes
+    int quantLevel = 10;
     int blockSize = 8;
 
     cv::Mat img = cv::imread(inputImage, cv::IMREAD_COLOR);
@@ -18,20 +18,21 @@ int main() {
         return -1;
     }
 
-    // Testa quantização simples dos resíduos
+    // --- Quantização simples ---
     encodeImageLossy(img, encodedFile, m, quantLevel);
     cv::Mat decodedLossy = decodeImageLossy(encodedFile, img.rows, img.cols, m, quantLevel);
     double mse1 = calculateMSE(img, decodedLossy);
     double psnr1 = calculatePSNR(mse1);
     std::cout << "[Quantização simples] MSE: " << mse1 << " PSNR: " << psnr1 << " dB\n";
 
-    // Testa codificação DCT
+    // --- DCT + ZigZag + Quantização ---
     encodeImageDCT(img, encodedFileDCT, blockSize, quantLevel);
-    cv::Mat decodedDCT = decodeImageDCT(encodedFileDCT, img.rows, img.cols, blockSize, quantLevel);
+    cv::Mat decodedDCT = decodeImageDCT(encodedFileDCT, 0, 0, 0, 0);  // ok, usa header
     double mse2 = calculateMSE(img, decodedDCT);
     double psnr2 = calculatePSNR(mse2);
     std::cout << "[DCT] MSE: " << mse2 << " PSNR: " << psnr2 << " dB\n";
 
+    // Mostra resultados
     cv::imshow("Original", img);
     cv::imshow("Decodificada Quantizacao", decodedLossy);
     cv::imshow("Decodificada DCT", decodedDCT);
@@ -39,3 +40,4 @@ int main() {
 
     return 0;
 }
+

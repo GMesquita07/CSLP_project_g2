@@ -16,10 +16,7 @@ void encodeImageLossy(const cv::Mat& img, const std::string& filename, int m, in
                 int current = img.at<cv::Vec3b>(i, j)[c];
                 int pred = predictor(img, i, j, c);
                 int residual = current - pred;
-
-                // Quantização
                 int qResidual = residual / quantLevel;
-
                 encoder.encodeSigned(qResidual);
             }
         }
@@ -37,10 +34,7 @@ cv::Mat decodeImageLossy(const std::string& filename, int rows, int cols, int m,
             for (int j = 0; j < cols; ++j) {
                 int pred = predictor(img, i, j, c);
                 int qResidual = decoder.decodeSigned();
-
-                // Desquantização
                 int residual = qResidual * quantLevel;
-
                 int value = pred + residual;
                 img.at<cv::Vec3b>(i, j)[c] = cv::saturate_cast<uchar>(value);
             }
@@ -49,7 +43,6 @@ cv::Mat decodeImageLossy(const std::string& filename, int rows, int cols, int m,
     return img;
 }
 
-// Funções Zig-Zag para 8x8 blocos
 static const int zigzagIndex[64] = {
   0, 1, 5, 6,14,15,27,28,
   2, 4, 7,13,16,26,29,42,
@@ -83,23 +76,22 @@ cv::Mat inverseZigZagOrder(const std::vector<int>& vec, int blockSize) {
 
 void encodeImageDCT(const cv::Mat& img, const std::string& filename, int blockSize, int quantLevel) {
     BitStream bs(filename, true);
-    GolombEncoder encoder(bs, 8); // m = 8 default, pode ser parâmetro
+    GolombEncoder encoder(bs, 8);
 
     int rows = img.rows;
     int cols = img.cols;
 
-    // Guarda header
     bs.writeInt(rows);
     bs.writeInt(cols);
     bs.writeInt(blockSize);
     bs.writeInt(quantLevel);
+    // NÃO fazer flush aqui
 
     for (int c = 0; c < 3; ++c) {
         for (int i = 0; i < rows; i += blockSize) {
             for (int j = 0; j < cols; j += blockSize) {
                 cv::Mat block(blockSize, blockSize, CV_32F);
 
-                // Preenche bloco com pixels convertidos para float
                 for (int bi = 0; bi < blockSize; ++bi) {
                     for (int bj = 0; bj < blockSize; ++bj) {
                         int r = std::min(i + bi, rows - 1);
@@ -108,19 +100,10 @@ void encodeImageDCT(const cv::Mat& img, const std::string& filename, int blockSi
                     }
                 }
 
-                // Aplica DCT
                 cv::dct(block, block);
-
-                // Quantiza
                 block /= quantLevel;
-
-                // Zig-Zag
                 auto zigzagVec = zigZagOrder(block);
-
-                // Codifica os coeficientes zig-zag
-                for (int val : zigzagVec) {
-                    encoder.encodeSigned(val);
-                }
+                for (int val : zigzagVec) encoder.encodeSigned(val);
             }
         }
     }
@@ -136,6 +119,17 @@ cv::Mat decodeImageDCT(const std::string& filename, int /*rows*/, int /*cols*/, 
     int blockSize = bs.readInt();
     int quantLevel = bs.readInt();
 
+    std::cout << "[DEBUG] Lidos do ficheiro: rows=" << rows
+          << ", cols=" << cols
+          << ", blockSize=" << blockSize
+          << ", quantLevel=" << quantLevel << std::endl;
+
+
+    if (blockSize != 8) {
+        std::cerr << "Erro: Apenas blocos 8x8 são suportados neste momento.\n";
+        exit(1);
+    }
+
     cv::Mat img(rows, cols, CV_8UC3);
 
     for (int c = 0; c < 3; ++c) {
@@ -147,14 +141,9 @@ cv::Mat decodeImageDCT(const std::string& filename, int /*rows*/, int /*cols*/, 
                 }
 
                 cv::Mat block = inverseZigZagOrder(zigzagVec, blockSize);
-
-                // Desquantiza
                 block *= quantLevel;
-
-                // Aplica IDCT
                 cv::idct(block, block);
 
-                // Copia para a imagem
                 for (int bi = 0; bi < blockSize; ++bi) {
                     for (int bj = 0; bj < blockSize; ++bj) {
                         int r = std::min(i + bi, rows - 1);

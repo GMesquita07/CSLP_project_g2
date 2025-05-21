@@ -1,3 +1,0 @@
-/home/mesquita/CSLP/CSLP_project_g2/D4/t4/build/CMakeFiles/delivery4.dir
-/home/mesquita/CSLP/CSLP_project_g2/D4/t4/build/CMakeFiles/edit_cache.dir
-/home/mesquita/CSLP/CSLP_project_g2/D4/t4/build/CMakeFiles/rebuild_cache.dir

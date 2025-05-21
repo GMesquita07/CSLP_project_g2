@@ -1,5 +1,4 @@
 #pragma once
-
 #include <fstream>
 #include <string>
 
@@ -8,31 +7,36 @@ public:
     BitStream(const std::string& filename, bool writeMode);
     ~BitStream();
 
+    /* 1 bit */
     void writeBit(bool bit);
     bool readBit();
 
-    // Escreve 8 bits (um byte)
+    /* 1 byte */
     void writeByte(unsigned char byte);
-    // Lê 8 bits (um byte)
     unsigned char readByte();
 
-    // NOVO: Escrever e ler inteiros de 32 bits
+    /* 32-bit little-endian */
     void writeInt(int value);
-    int readInt();
+    int  readInt();
 
-    void flush();
-    unsigned int readBits(int nBits);
+    /* n bits ( 0 < n ≤ 32 ) */
     void writeBits(unsigned int value, int nBits);
+    unsigned int readBits(int nBits);
 
+    /* descarrega buffer parcial (apenas quando em escrita) */
+    void flush();
 
 private:
+    /* ficheiros */
     std::ofstream ofs;
     std::ifstream ifs;
+    bool writeMode{false};
 
-    bool writeMode;
+    /* escrita */
+    unsigned char buffer{0};
+    int  bitCount{0};
 
-    unsigned char buffer;
-    int bitCount;
-
-    void writeBuffer();
+    /* leitura */
+    unsigned char readBuffer{0};
+    int  bitsLeft{0};
 };
