@@ -2,7 +2,7 @@
 #include <iostream>
 
 int main() {
-    std::string inputVideo = "../data/testvideo.mp4";
+    std::string inputVideo = "../data/testvideo.mp4";              // para testar com video original, mudar testvideo -> testvideo15seg  (EXTREMAMENTE MAIS DEMORADO)
     std::string encodedFile = "encoded_interframe.bin";
     std::string outputVideo = "decoded_interframe.avi";
 
