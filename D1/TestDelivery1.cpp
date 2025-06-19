@@ -4,6 +4,10 @@
 #include <cmath>
 #include <chrono>
 
+//  g++ TestDelivery1.cpp -o TestDelivery1 `pkg-config --cflags --libs opencv4`
+//  ./TestDelivery1 img1.jpeg (1 imagem)
+//  ./TestDelivery1 img1.jpeg img2.jpeg   (comparar 2 imagens)
+
 // Função para calcular o histograma de uma imagem em escala de cinzento
 void printHistogram(const cv::Mat& grayImage) {
     int histSize = 256;
