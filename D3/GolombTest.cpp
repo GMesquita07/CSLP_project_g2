@@ -4,8 +4,21 @@
 #include <string>
 #include <stdexcept>
 #include <cstdint>
-#include "../D2/BitStream.h" // sua classe de T1
-#include "Golomb.h"    // a implementação Golomb.h e Golomb.cpp
+#include <chrono>
+#include <sys/stat.h>
+#include "../D2/BitStream.h" 
+#include "Golomb.h"    
+
+// g++ GolombTest.cpp Golomb.cpp ../D2/BitStream.cpp -o GolombTest
+// ./GolombTest <m> input.txt encoded.bin
+
+// Função para obter o tamanho de um ficheiro
+size_t getFileSize(const std::string& filename) {
+    struct stat st;
+    if (stat(filename.c_str(), &st) == 0)
+        return st.st_size;
+    return 0;
+}
 
 int main(int argc, char** argv) {
     if (argc < 4) {
@@ -32,7 +45,8 @@ int main(int argc, char** argv) {
     }
     fin.close();
 
-    // 3) Codifica (Encoder)
+    // 2) Codifica (Encoder)
+    auto t_encode_start = std::chrono::high_resolution_clock::now();
     {
         // Abre arquivo binário para escrita
         BitStream bs(encodedFile, true); // true = write mode
@@ -44,9 +58,11 @@ int main(int argc, char** argv) {
         }
         // Ao sair do escopo, o destrutor do BitStream faz flush e fecha o arquivo
     }
+    auto t_encode_end = std::chrono::high_resolution_clock::now();
 
-    // 4) Decodifica (Decoder)
+    // 3) Decodifica (Decoder)
     std::vector<int64_t> decodedValues;
+    auto t_decode_start = std::chrono::high_resolution_clock::now();
     {
         // Abre arquivo binário para leitura
         BitStream bs(encodedFile, false);
@@ -64,8 +80,9 @@ int main(int argc, char** argv) {
             }
         }
     }
+    auto t_decode_end = std::chrono::high_resolution_clock::now();
 
-    // 5) Compara e exibe resultado
+    // 4) Compara e exibe resultado
     size_t mismatchCount = 0;
     for (size_t i = 0; i < originalValues.size(); i++) {
         if (originalValues[i] != decodedValues[i]) {
@@ -76,13 +93,29 @@ int main(int argc, char** argv) {
         }
     }
 
-    if (mismatchCount == 0) {
-        std::cout << "All " << originalValues.size() 
-                  << " values matched successfully!\n";
-    } else {
-        std::cout << "Found " << mismatchCount 
-                  << " mismatches out of " << originalValues.size() << " total.\n";
-    }
+    // 5) Métricas
+    size_t inputSize = getFileSize(inputFile);
+    size_t encodedSize = getFileSize(encodedFile);
+    double compressao = inputSize > 0 ? 100.0 * (1.0 - (double)encodedSize / inputSize) : 0.0;
+    auto encode_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t_encode_end - t_encode_start).count();
+    auto decode_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t_decode_end - t_decode_start).count();
+    auto total_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t_decode_end - t_encode_start).count();
 
+    std::cout << "\n==== Métricas Golomb ====" << std::endl;
+    std::cout << "Tamanho do ficheiro de input: " << inputSize << " bytes" << std::endl;
+    std::cout << "Tamanho do ficheiro codificado: " << encodedSize << " bytes" << std::endl;
+    std::cout << "Compressão: " << compressao << "%" << std::endl;
+    std::cout << "Tempo de codificação: " << encode_ms << " ms" << std::endl;
+    std::cout << "Tempo de descodificação: " << decode_ms << " ms" << std::endl;
+    std::cout << "Tempo total (codificação + descodificação): " << total_ms << " ms" << std::endl;
+
+    if (mismatchCount == 0) {
+        std::cout << "Todos os " << originalValues.size() 
+                  << " valores coincidem após codificação/descodificação!" << std::endl;
+    } else {
+        std::cout << "Encontrados " << mismatchCount 
+                  << " erros em " << originalValues.size() << " valores." << std::endl;
+    }
+    std::cout << "========================\n";
     return 0;
 }
