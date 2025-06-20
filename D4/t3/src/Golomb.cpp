@@ -20,15 +20,6 @@ void GolombEncoder::encodeUnsigned(unsigned int value) {
     encodeRemainder(r);
 }
 
-void GolombEncoder::flush() {
-    if (bitCount > 0) {
-        buffer <<= (32 - bitCount); // completar os bits restantes
-        bs.writeBits(buffer, bitCount);
-        bitCount = 0;
-        buffer = 0;
-    }
-}
-
 void GolombEncoder::encodeSigned(int value) {
     // Mapeamento Zig-Zag
     unsigned int mapped = (value <= 0) ? (-value) * 2 : value * 2 - 1;
@@ -42,6 +33,10 @@ void GolombEncoder::encodeRemainder(int remainder) {
         remainder += threshold;
         bs.writeBits(remainder, b);
     }
+}
+
+void GolombEncoder::flush() {
+    bs.flush();
 }
 
 GolombDecoder::GolombDecoder(BitStream& bs_, int m_)

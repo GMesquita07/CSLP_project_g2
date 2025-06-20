@@ -7,6 +7,7 @@ public:
     GolombEncoder(BitStream& bs, int m);
     void encodeUnsigned(unsigned int value);
     void encodeSigned(int value);
+    void flush();
 
 private:
     BitStream& bs;

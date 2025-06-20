@@ -44,14 +44,16 @@ int main() {
     double mse = calculateMSE(img, decoded);
     double psnr = calculatePSNR(mse);
 
-    size_t inputSize = getFileSize(inputImage);
+    size_t fileOriginal = getFileSize(inputImage); // ficheiro comprimido
+    size_t inputSize = img.cols * img.rows * img.channels(); // RAW
     size_t encodedSize = getFileSize(encodedFile);
     double compressao = inputSize > 0 ? 100.0 * (1.0 - (double)encodedSize / inputSize) : 0.0;
 
     std::cout << "==== Métricas Delivery 4 - T1 ====" << std::endl;
-    std::cout << "Tamanho original: " << inputSize << " bytes" << std::endl;
+    std::cout << "Tamanho ficheiro original (comprimido): " << fileOriginal << " bytes" << std::endl;
+    std::cout << "Tamanho RAW (sem compressão): " << inputSize << " bytes" << std::endl;
     std::cout << "Tamanho codificado: " << encodedSize << " bytes" << std::endl;
-    std::cout << "Compressão: " << compressao << "%" << std::endl;
+    std::cout << "Compressão (vs RAW): " << compressao << "%" << std::endl;
     std::cout << "MSE: " << mse << std::endl;
     std::cout << "PSNR: " << psnr << " dB" << std::endl;
     std::cout << "Tempo de codificação: " << std::chrono::duration_cast<std::chrono::milliseconds>(t_enc_end - t_enc_start).count() << " ms" << std::endl;

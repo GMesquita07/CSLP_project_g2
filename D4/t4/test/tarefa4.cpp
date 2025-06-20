@@ -31,7 +31,8 @@ int main() {
         std::cerr << "Erro ao carregar imagem." << std::endl;
         return -1;
     }
-    size_t inputSize = getFileSize(inputImage);
+    size_t fileOriginal = getFileSize(inputImage); // ficheiro comprimido
+    size_t inputSize = img.cols * img.rows * img.channels(); // RAW
 
     // --- Quantização simples ---
     auto t_enc1_start = std::chrono::high_resolution_clock::now();
@@ -59,18 +60,20 @@ int main() {
 
     std::cout << "==== Métricas Delivery 4 - T4 ====" << std::endl;
     std::cout << "[Quantização Simples]" << std::endl;
-    std::cout << "Tamanho original: " << inputSize << " bytes" << std::endl;
+    std::cout << "Tamanho ficheiro original (comprimido): " << fileOriginal << " bytes" << std::endl;
+    std::cout << "Tamanho RAW (sem compressão): " << inputSize << " bytes" << std::endl;
     std::cout << "Tamanho codificado: " << encodedSize1 << " bytes" << std::endl;
-    std::cout << "Compressão: " << compressao1 << "%" << std::endl;
+    std::cout << "Compressão (vs RAW): " << compressao1 << "%" << std::endl;
     std::cout << "MSE: " << mse1 << std::endl;
     std::cout << "PSNR: " << psnr1 << " dB" << std::endl;
     std::cout << "Tempo de codificação: " << std::chrono::duration_cast<std::chrono::milliseconds>(t_enc1_end - t_enc1_start).count() << " ms" << std::endl;
     std::cout << "Tempo de descodificação: " << std::chrono::duration_cast<std::chrono::milliseconds>(t_dec1_end - t_dec1_start).count() << " ms" << std::endl;
     std::cout << "-----------------------------" << std::endl;
     std::cout << "[DCT + ZigZag + Quantização]" << std::endl;
-    std::cout << "Tamanho original: " << inputSize << " bytes" << std::endl;
+    std::cout << "Tamanho ficheiro original (comprimido): " << fileOriginal << " bytes" << std::endl;
+    std::cout << "Tamanho RAW (sem compressão): " << inputSize << " bytes" << std::endl;
     std::cout << "Tamanho codificado: " << encodedSize2 << " bytes" << std::endl;
-    std::cout << "Compressão: " << compressao2 << "%" << std::endl;
+    std::cout << "Compressão (vs RAW): " << compressao2 << "%" << std::endl;
     std::cout << "MSE: " << mse2 << std::endl;
     std::cout << "PSNR: " << psnr2 << " dB" << std::endl;
     std::cout << "Tempo de codificação: " << std::chrono::duration_cast<std::chrono::milliseconds>(t_enc2_end - t_enc2_start).count() << " ms" << std::endl;

@@ -35,6 +35,10 @@ void GolombEncoder::encodeRemainder(int remainder) {
     }
 }
 
+void GolombEncoder::flush() {
+    bs.flush();
+}
+
 GolombDecoder::GolombDecoder(BitStream& bs_, int m_)
     : bs(bs_), m(m_)
 {

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <chrono>
 #include <sys/stat.h>
+#include <opencv2/opencv.hpp>
 
 //   cd D4/t3/build
 //   cmake ..
@@ -25,6 +26,19 @@ int main() {
     int searchArea = 4;     // área de busca ±4 pixels
     int IFramePeriod = 10;
 
+    // Obter info do vídeo original
+    cv::VideoCapture cap(inputVideo);
+    if (!cap.isOpened()) {
+        std::cerr << "Erro ao abrir vídeo de input!" << std::endl;
+        return -1;
+    }
+    int width = (int)cap.get(cv::CAP_PROP_FRAME_WIDTH);
+    int height = (int)cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+    int channels = 3; // assumindo BGR
+    int nframes = (int)cap.get(cv::CAP_PROP_FRAME_COUNT);
+    size_t fileOriginal = getFileSize(inputVideo);
+    size_t inputSize = (size_t)nframes * width * height * channels;
+
     auto t_enc_start = std::chrono::high_resolution_clock::now();
     std::cout << "A codificar vídeo com codificação inter-frame...\n";
     encodeVideoInterFrame(inputVideo, encodedFile, m, blockSize, searchArea, IFramePeriod);
@@ -37,24 +51,19 @@ int main() {
     auto t_dec_end = std::chrono::high_resolution_clock::now();
     std::cout << "Vídeo descodificado com sucesso.\n";
 
-    size_t inputSize = getFileSize(inputVideo);
     size_t encodedSize = getFileSize(encodedFile);
     size_t outputSize = getFileSize(outputVideo);
     double compressao = inputSize > 0 ? 100.0 * (1.0 - (double)encodedSize / inputSize) : 0.0;
 
     std::cout << "==== Métricas Delivery 4 - T3 ====" << std::endl;
-    std::cout << "Tamanho original: " << inputSize << " bytes" << std::endl;
+    std::cout << "Tamanho ficheiro original (comprimido): " << fileOriginal << " bytes" << std::endl;
+    std::cout << "Tamanho RAW (sem compressão): " << inputSize << " bytes" << std::endl;
     std::cout << "Tamanho codificado: " << encodedSize << " bytes" << std::endl;
     std::cout << "Tamanho reconstruído: " << outputSize << " bytes" << std::endl;
-    std::cout << "Compressão: " << compressao << "%" << std::endl;
+    std::cout << "Compressão (vs RAW): " << compressao << "%" << std::endl;
     std::cout << "Tempo de codificação: " << std::chrono::duration_cast<std::chrono::milliseconds>(t_enc_end - t_enc_start).count() << " ms" << std::endl;
     std::cout << "Tempo de descodificação: " << std::chrono::duration_cast<std::chrono::milliseconds>(t_dec_end - t_dec_start).count() << " ms" << std::endl;
     std::cout << "=============================" << std::endl;
-
-    // (Opcional) Se tiveres funções para calcular PSNR/frame, podes adicionar aqui
-    // Exemplo:
-    // double psnr = calculateVideoPSNR(inputVideo, outputVideo);
-    // std::cout << "PSNR médio: " << psnr << " dB" << std::endl;
 
     return 0;
 }
