@@ -2,6 +2,9 @@
 #include <fstream>
 #include <string>
 
+// g++ D3/GolombTest.cpp D3/Golomb.cpp D2/BitStream.cpp -o D3/GolombTest
+// ./D3/GolombTest 5 D3/input.txt D3/encoded.bin
+
 class BitStream {
 public:
     BitStream(const std::string& filename, bool writeMode);

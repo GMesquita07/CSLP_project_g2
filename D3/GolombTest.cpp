@@ -94,7 +94,8 @@ int main(int argc, char** argv) {
     }
 
     // 5) Métricas
-    size_t inputSize = getFileSize(inputFile);
+    size_t fileOriginal = getFileSize(inputFile); // ficheiro de input (texto)
+    size_t inputSize = originalValues.size() * sizeof(int64_t); // RAW (binário)
     size_t encodedSize = getFileSize(encodedFile);
     double compressao = inputSize > 0 ? 100.0 * (1.0 - (double)encodedSize / inputSize) : 0.0;
     auto encode_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t_encode_end - t_encode_start).count();
@@ -102,9 +103,10 @@ int main(int argc, char** argv) {
     auto total_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t_decode_end - t_encode_start).count();
 
     std::cout << "\n==== Métricas Golomb ====" << std::endl;
-    std::cout << "Tamanho do ficheiro de input: " << inputSize << " bytes" << std::endl;
+    std::cout << "Tamanho ficheiro de input (texto): " << fileOriginal << " bytes" << std::endl;
+    std::cout << "Tamanho RAW (binário): " << inputSize << " bytes" << std::endl;
     std::cout << "Tamanho do ficheiro codificado: " << encodedSize << " bytes" << std::endl;
-    std::cout << "Compressão: " << compressao << "%" << std::endl;
+    std::cout << "Compressão (vs RAW): " << compressao << "%" << std::endl;
     std::cout << "Tempo de codificação: " << encode_ms << " ms" << std::endl;
     std::cout << "Tempo de descodificação: " << decode_ms << " ms" << std::endl;
     std::cout << "Tempo total (codificação + descodificação): " << total_ms << " ms" << std::endl;
